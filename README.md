@@ -1,3 +1,3 @@
 # astral-bot
 
-cokc
+seethe rage 
