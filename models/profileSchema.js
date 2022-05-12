@@ -12,7 +12,11 @@ const profileSchema = new mongoose.Schema({
     },
     ProxyReq: {
         type: Number,
-        default: 3
+        default: 3,
+    },
+    DomainsRecieved: {
+        type: Array,
+        require: true
     }
 
 })

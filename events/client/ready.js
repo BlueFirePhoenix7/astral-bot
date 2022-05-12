@@ -11,7 +11,7 @@ module.exports = {
 
         client.user.setActivity("a!.help", {
             type: "WATCHING",
-            name: "a!.help"
+            name: "Astral Network"
         });
 
         // Send a message on the console

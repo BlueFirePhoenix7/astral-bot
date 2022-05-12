@@ -47,12 +47,14 @@ const warning = chalk.bold.yellow;
 // Error Handling
 
 process.on("uncaughtException", (err) => {
-    console.log("Uncaught Exception: \n" + err);
+    console.log(error("[FATAL] Uncaught Exception: \n" + err));
 });
 
 process.on("unhandledRejection", (reason, promise) => {
     console.log(error("[FATAL] Possibly Unhandled Rejection at: Promise \n"), promise, " reason: ", reason.message);
 });
+
+
 
 
 
@@ -67,7 +69,7 @@ mongoose.connect(client.config.mongoDB, {
 }).then(() => {
     console.log(success("[DATABASE]") + ' > Connected to MongoDB');
 }).catch((err) => {
-    console.log(warning("[DATABASE]") + ' > Unable to connect to MongoDB Database.\nError: ' + err)
+    console.log(error("[DATABASE]") + ' > Unable to connect to MongoDB Database.\nError: ' + err)
 })
 
 // Login Discord Bot Token

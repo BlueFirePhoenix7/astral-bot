@@ -24,7 +24,8 @@ module.exports = {
         // Defining proxies 
         const lucid = process.env.LUCID;
         const lucidArray = lucid.split(",");
-        const lucidRandom = lucidArray[Math.floor(Math.random() * lucidArray.length)];
+        var lucidRandom = lucidArray[Math.floor(Math.random() * lucidArray.length)];
+        console.log(lucidRandom);
 
         let profileData;
 
@@ -37,6 +38,7 @@ module.exports = {
                 userID: interaction.user.id,
                 ServerID: interaction.guild.id,
                 ProxyReq: 3,
+                DomainsRecieved: [],
             });
             profileData.save();
             console.log(success(`[Database] > ${interaction.user.username}#${interaction.user.discriminator} created a new profile`));
@@ -60,13 +62,14 @@ module.exports = {
                 }
             }
 
+            
 
             const args = [];
 
             for (let option of interaction.options.data) {
                 if (option.type === "SUB_COMMAND") {
                     if (option.name) args.push(option.name);
-                    option.options?.forEach((x) => {
+                    option.options ?.forEach((x) => {
                         if (x.value) args.push(x.value);
                     });
                 } else if (option.value) args.push(option.value);
@@ -84,39 +87,56 @@ module.exports = {
             let profileData;
 
 
+            
             profileData = await profileModel.findOne({
                 userID: interaction.user.id,
             })
 
 
-
             // if ProxyReq is or is bellow 0 then return
             if (profileData.ProxyReq <= 0) return interaction.reply({ content: "You have no proxy requests!", ephemeral: true });
+
+            if (await profileModel.find({lucidRandom : {$in: DomainsRecieved}})) {
+                return interaction.reply({ content: "You have already recieved a proxy for this domain!", ephemeral: true });
+                var lucidRandom = lucidArray[Math.floor(Math.random() * lucidArray.length)];
+                console.log(lucidRandom);
+                
+            } 
 
 
 
             if (interaction.customId === "lucid-button") {
+                console.log(lucidRandom);
                 // decrease ProxyReq by 1
-                await profileModel.findOneAndUpdate(
-                    {
-                        userID: interaction.user.id,
+                await profileModel.findOneAndUpdate({
+                    userID: interaction.user.id,
+                }, {
+                    $inc: {
+                        ProxyReq: -1, // decrement by 1
                     },
-                    {
-                        $inc: {
-                            ProxyReq: -1, // decrement by 1
-                        },
-                    }
-                );
+                },  );   
+
+                await profileModel.findOneAndUpdate({
+                    userID: interaction.user.id,
+                }, {
+                    $push: {
+                        DomainsRecieved: lucidRandom, // push the random proxy to domains recieved array
+                    },
+                },  );
+
+                console.log(info(`[BOT] ${interaction.user.tag} recieved ${lucidRandom} as a proxy request`));
 
 
                 // making and sending the embed
+
+
                 const lucidEmbed = new client.discord.MessageEmbed()
                     .setColor("#0099ff")
                     .setTitle("Lucid")
                     .setDescription("Lucid is a proxy that allows you to access the internet without any limitations.\n\n")
                     .addField("**Your Lucid Link: **", `${lucidRandom}`)
-                    .addField("**Remaining Proxies: **", `${profileData.ProxyReq}`)
-                interaction.reply({ embeds: [lucidEmbed] });
+                    .addField("**Remaining Proxies: **", `${profileData.ProxyReq - 1} `)
+                interaction.reply({ embeds: [lucidEmbed], ephemeral: true });
             } else if (interaction.customId === "void-button") {
                 interaction.reply({ content: "void proxy goes here alongside an embed" });
 
@@ -127,4 +147,3 @@ module.exports = {
 
     }
 };
-

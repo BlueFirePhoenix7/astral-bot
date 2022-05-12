@@ -53,6 +53,7 @@ module.exports = {
           userID: message.author.id,
           ServerID: message.guild.id,
           ProxyReq: 3,
+	    		DomainsRecieved: [],
         })
         profile.save();
         console.log(
