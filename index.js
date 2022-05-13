@@ -52,6 +52,7 @@ process.on("uncaughtException", (err) => {
 
 process.on("unhandledRejection", (reason, promise) => {
     console.log(error("[FATAL] Possibly Unhandled Rejection at: Promise \n"), promise, " reason: ", reason.message);
+
 });
 
 

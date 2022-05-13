@@ -62,14 +62,14 @@ module.exports = {
                 }
             }
 
-            
+
 
             const args = [];
 
             for (let option of interaction.options.data) {
                 if (option.type === "SUB_COMMAND") {
                     if (option.name) args.push(option.name);
-                    option.options ?.forEach((x) => {
+                    option.options?.forEach((x) => {
                         if (x.value) args.push(x.value);
                     });
                 } else if (option.value) args.push(option.value);
@@ -87,7 +87,7 @@ module.exports = {
             let profileData;
 
 
-            
+
             profileData = await profileModel.findOne({
                 userID: interaction.user.id,
             })
@@ -96,16 +96,18 @@ module.exports = {
             // if ProxyReq is or is bellow 0 then return
             if (profileData.ProxyReq <= 0) return interaction.reply({ content: "You have no proxy requests!", ephemeral: true });
 
-            if (await profileModel.find({lucidRandom : {$in: DomainsRecieved}})) {
-                return interaction.reply({ content: "You have already recieved a proxy for this domain!", ephemeral: true });
-                var lucidRandom = lucidArray[Math.floor(Math.random() * lucidArray.length)];
-                console.log(lucidRandom);
-                
-            } 
 
 
 
             if (interaction.customId === "lucid-button") {
+                // if DomainsRecieved includes the lucidRandom then return
+                if (profileData.DomainsRecieved.includes(lucidRandom)) {
+                    interaction.reply({ content: "You have already recieved a proxy for this domain! **[NO PROXY REQS HAVE BEEN DEDUCTED]**", ephemeral: true });
+                    var lucidRandom = lucidArray[Math.floor(Math.random() * lucidArray.length)];
+                    console.log(lucidRandom);
+                    return; // make sure to return so the user doesnt lose a proxy request
+                }
+
                 console.log(lucidRandom);
                 // decrease ProxyReq by 1
                 await profileModel.findOneAndUpdate({
@@ -114,7 +116,7 @@ module.exports = {
                     $inc: {
                         ProxyReq: -1, // decrement by 1
                     },
-                },  );   
+                });
 
                 await profileModel.findOneAndUpdate({
                     userID: interaction.user.id,
@@ -122,7 +124,7 @@ module.exports = {
                     $push: {
                         DomainsRecieved: lucidRandom, // push the random proxy to domains recieved array
                     },
-                },  );
+                });
 
                 console.log(info(`[BOT] ${interaction.user.tag} recieved ${lucidRandom} as a proxy request`));
 

@@ -133,6 +133,18 @@ module.exports = {
             } else {
                 message.reply("User already has a profile!");
             }
+        } else if (option === "clear") {
+
+            profileModel.deleteMany({})
+                .then(() => {
+                    // react to the users message with a thumbs up
+                    message.react("✅");
+                }
+                ).catch(() => {
+                    message.reply("Error!");
+                }
+                );
+
         }
 
     }
