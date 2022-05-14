@@ -22,9 +22,12 @@ module.exports = {
      */
     async execute(interaction, client) {
         // Defining proxies 
+        const voids = process.env.VOID;
         const lucid = process.env.LUCID;
         const lucidArray = lucid.split(",");
+        const voidArray = voids.split(",");
         var lucidRandom = lucidArray[Math.floor(Math.random() * lucidArray.length)];
+        var voidRandom = voidArray[Math.floor(Math.random() * voidArray.length)];
         console.log(lucidRandom);
 
         let profileData;
@@ -140,7 +143,44 @@ module.exports = {
                     .addField("**Remaining Proxies: **", `${profileData.ProxyReq - 1} `)
                 interaction.reply({ embeds: [lucidEmbed], ephemeral: true });
             } else if (interaction.customId === "void-button") {
-                interaction.reply({ content: "void proxy goes here alongside an embed" });
+                if (profileData.DomainsRecieved.includes(voidRandom)) {
+                    interaction.reply({ content: "You have already recieved a proxy for this domain! **[NO PROXY REQS HAVE BEEN DEDUCTED]**", ephemeral: true });
+                    var lucidRandom = voidArray[Math.floor(Math.random() * voidArray.length)];
+                    console.log(voidRandom);
+                    return; // make sure to return so the user doesnt lose a proxy request
+                }
+
+                console.log(voidRandom);
+                // decrease ProxyReq by 1
+                await profileModel.findOneAndUpdate({
+                    userID: interaction.user.id,
+                }, {
+                    $inc: {
+                        ProxyReq: -1, // decrement by 1
+                    },
+                });
+
+                await profileModel.findOneAndUpdate({
+                    userID: interaction.user.id,
+                }, {
+                    $push: {
+                        DomainsRecieved: voidRandom, // push the random proxy to domains recieved array
+                    },
+                });
+
+                console.log(info(`[BOT] ${interaction.user.tag} recieved ${voidRandom} as a proxy request`));
+
+
+                // making and sending the embed
+
+
+                const voidEmbed = new client.discord.MessageEmbed()
+                    .setColor("#0099ff")
+                    .setTitle("Void")
+                    .setDescription("Void is a proxy that allows you to access the internet without any limitations.\n\n")
+                    .addField("**Your Void Link: **", `${voidRandom}`)
+                    .addField("**Remaining Proxies: **", `${profileData.ProxyReq - 1} `)
+                interaction.reply({ embeds: [voidEmbed], ephemeral: true });
 
             }
 
